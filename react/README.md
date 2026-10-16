@@ -432,7 +432,7 @@ We don’t recommend using indexes for keys if the order of items may change.
   - Use spread props sparingly. eslint: [`react/jsx-props-no-spreading`](https://github.com/jsx-eslint/eslint-plugin-react/blob/master/docs/rules/jsx-props-no-spreading.md)
   > Why? Otherwise you’re more likely to pass unnecessary props down to components. And for React v15.6.1 and older, you could [pass invalid HTML attributes to the DOM](https://legacy.reactjs.org/blog/2017/09/08/dom-attributes-in-react-16.html).
 
-  Exceptions. The config reports every spread, so disable `react/jsx-props-no-spreading` on the line for these:
+  Exceptions. The config reports spreading a variable (an inline object literal such as `{...{ text: '' }}` is allowed), so disable `react/jsx-props-no-spreading` on the line for these:
 
   - HOCs that proxy down props and hoist propTypes
 
@@ -488,7 +488,7 @@ We don’t recommend using indexes for keys if the order of items may change.
 
     | React version | Function components | Class components |
     | --- | --- | --- |
-    | < 18.3 | Default parameters. `defaultProps` still works, so existing code may keep it until the upgrade (see [`@paysera/eslint-config`](../packages/eslint-config/README.md#react-versions)), but new code must not add it | `defaultProps` |
+    | < 18.3 | Default parameters. `defaultProps` still works, so files not migrated yet may keep it until the upgrade under an override scoped to those files (see [`@paysera/eslint-config`](../packages/eslint-config/README.md#react-versions)), but new code must not add it | `defaultProps` |
     | 18.3.x | Default parameters only. `defaultProps` logs a deprecation warning | `defaultProps` |
     | 19 and later | Default parameters only. React 19 dropped `defaultProps` for function components: the automatic JSX runtime ignores it, so the default never applies, and only the classic `React.createElement` runtime still reads it | `defaultProps` |
 

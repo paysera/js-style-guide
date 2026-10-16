@@ -1,5 +1,5 @@
 import test from 'tape';
-import errorMessageIds from './lint';
+import errorMessageIds from './errorMessageIds';
 
 function defaultPropsMessageIds(component) {
     return errorMessageIds('react/require-default-props', component);

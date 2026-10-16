@@ -1,5 +1,5 @@
 import test from 'tape';
-import errorMessageIds from './lint';
+import errorMessageIds from './errorMessageIds';
 
 function unsafeMessageIds(component) {
     return errorMessageIds('react/no-unsafe', component);

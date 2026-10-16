@@ -66,21 +66,24 @@ for more information.
 
 Since v2, `react/require-default-props` requires default parameters instead of `defaultProps` in plain function components, and keeps `defaultProps` for class components. React 18.3 deprecates `defaultProps` on function components and React 19 drops them (the automatic JSX runtime ignores them), while default parameters work in every React version. The rule still checks components wrapped inline in `memo` or `forwardRef` like classes, until a release of eslint-plugin-react ships [jsx-eslint/eslint-plugin-react#4046](https://github.com/jsx-eslint/eslint-plugin-react/pull/4046); see [Default Props](https://github.com/paysera/js-style-guide/tree/master/react#default-props) in the React style guide for how to declare them.
 
-Projects on React < 18.3 that still declare `defaultProps` on function components can stay on `@paysera/eslint-config@1`, or use v2 and restore the previous behaviour until they migrate:
+Projects on React < 18.3 that still declare `defaultProps` on function components can restore the previous behaviour only for the files they have not migrated yet, so new files keep requiring default parameters:
 
 ```json
 {
     "extends": "@paysera",
-    "rules": {
-        "react/require-default-props": ["error", {
-            "forbidDefaultForRequired": true,
-            "functions": "defaultProps"
-        }]
-    }
+    "overrides": [{
+        "files": ["src/legacy/**/*.jsx"],
+        "rules": {
+            "react/require-default-props": ["error", {
+                "forbidDefaultForRequired": true,
+                "functions": "defaultProps"
+            }]
+        }
+    }]
 }
 ```
 
-Remove the override before upgrading to React 18.3 or later.
+List the unmigrated files in `files`, remove each one as it is migrated, and remove the override before upgrading to React 18.3 or later.
 
 ## Improving this config
 

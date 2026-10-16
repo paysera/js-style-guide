@@ -1,5 +1,5 @@
 import test from 'tape';
-import errorMessageIds from './lint';
+import errorMessageIds from './errorMessageIds';
 
 function objectDefaultMessageIds(component) {
     return errorMessageIds('react/no-object-type-as-default-prop', component);
