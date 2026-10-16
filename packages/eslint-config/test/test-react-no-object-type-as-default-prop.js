@@ -15,6 +15,33 @@ export default function TodoList({ items = [], style = {}, onSelect = () => {} }
 `), ['forbiddenTypeDefaultParam', 'forbiddenTypeDefaultParam', 'forbiddenTypeDefaultParam']);
     });
 
+    t.test('rejects JSX element and new expression defaults', (st) => {
+        st.plan(1);
+        st.deepEqual(objectDefaultMessageIds(`
+export default function Clock({ icon = <span />, startedAt = new Date() }) {
+    return <time>{icon}{startedAt.toISOString()}</time>;
+}
+`), ['forbiddenTypeDefaultParam', 'forbiddenTypeDefaultParam']);
+    });
+
+    t.test('memo wrapped inline: does not check default parameters', (st) => {
+        st.plan(1);
+        st.deepEqual(objectDefaultMessageIds(`
+const TodoList = React.memo(({ items = [] }) => <List items={items} />);
+export default TodoList;
+`), []);
+    });
+
+    t.test('forwardRef wrapped inline: does not check default parameters', (st) => {
+        st.plan(1);
+        st.deepEqual(objectDefaultMessageIds(`
+const TextInput = React.forwardRef(({ style = {}, onChange }, ref) => (
+    <input ref={ref} style={style} onChange={onChange} />
+));
+export default TextInput;
+`), []);
+    });
+
     t.test('accepts defaults hoisted to module-level constants', (st) => {
         st.plan(1);
         st.deepEqual(objectDefaultMessageIds(`
@@ -33,6 +60,17 @@ export default function TodoList({ items = NO_ITEMS, style = NO_STYLE, onSelect 
         st.deepEqual(objectDefaultMessageIds(`
 export default function Avatar({ src = '/avatar.png', size = 48 }) {
     return <img src={src} width={size} height={size} alt="" />;
+}
+`), []);
+    });
+
+    t.test('accepts a null default computed in the body', (st) => {
+        st.plan(1);
+        st.deepEqual(objectDefaultMessageIds(`
+export default function Clock({ startedAt = null }) {
+    const start = startedAt || new Date();
+
+    return <time>{start.toISOString()}</time>;
 }
 `), []);
     });
