@@ -83,7 +83,7 @@ Projects on React < 18.3 that still declare `defaultProps` on function component
 }
 ```
 
-List the unmigrated files in `files`, remove each one as it is migrated, and remove the override before upgrading to React 18.3 or later.
+List the unmigrated files in `files`. Migrate a listed file, and remove it from `files`, before adding components or optional props to it, because inside the override the rule asks for `defaultProps` again. Remove the override before upgrading to React 18.3 or later.
 
 ## Improving this config
 

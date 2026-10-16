@@ -196,7 +196,8 @@ This style guide is mostly based on the standards that are currently prevalent i
     });
 
     // good
-    export default class ReservationCard extends React.Component {
+    export default function ReservationCard() {
+      // stuff goes here
     }
     ```
 
@@ -488,7 +489,7 @@ We don’t recommend using indexes for keys if the order of items may change.
 
     | React version | Function components | Class components |
     | --- | --- | --- |
-    | < 18.3 | Default parameters. `defaultProps` still works, so files not migrated yet may keep it until the upgrade under an override scoped to those files (see [`@paysera/eslint-config`](../packages/eslint-config/README.md#react-versions)), but new code must not add it | `defaultProps` |
+    | < 18.3 | Default parameters. `defaultProps` still works, so files not migrated yet may keep it until the upgrade under an override scoped to those files (see [`@paysera/eslint-config`](../packages/eslint-config/README.md#react-versions)), but new code must not add it: migrate such a file before adding components or optional props to it | `defaultProps` |
     | 18.3.x | Default parameters only. `defaultProps` logs a deprecation warning | `defaultProps` |
     | 19 and later | Default parameters only. React 19 dropped `defaultProps` for function components: the automatic JSX runtime ignores it, so the default never applies, and only the classic `React.createElement` runtime still reads it | `defaultProps` |
 
