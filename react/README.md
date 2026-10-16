@@ -82,7 +82,7 @@ This style guide is mostly based on the standards that are currently prevalent i
     }
     ```
 
-  - Declare function components as normal functions, not as arrow functions, and do not write a stateless component as a class. eslint: [`react/prefer-stateless-function`](https://github.com/yannickcr/eslint-plugin-react/blob/master/docs/rules/prefer-stateless-function.md) reports the class form; the arrow-function form is not linted.
+  - Declare function components as normal functions, not as arrow functions, and do not write a stateless component as a class. A render function passed inline to `forwardRef` or `React.memo` is a callback, so it stays an arrow function (see [Arrow Functions](../README.md#arrows--use-them)). eslint: [`react/prefer-stateless-function`](https://github.com/yannickcr/eslint-plugin-react/blob/master/docs/rules/prefer-stateless-function.md) reports the class form; the arrow-function form is not linted.
 
     ```jsx
     // bad
