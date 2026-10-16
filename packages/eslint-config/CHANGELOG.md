@@ -1,6 +1,7 @@
 2.0.0 / 2026-10-16
 ==================
   - [breaking] `react/require-default-props`: function components must declare defaults as default parameters (`functions: 'defaultArguments'`); `defaultProps` on a plain function component is reported, because React 18.3 deprecates it and React 19 drops it for function components (the automatic JSX runtime ignores it). Class components keep `defaultProps`. Components wrapped inline in `memo` or `forwardRef` are still checked like classes, see [Default Props](https://github.com/paysera/js-style-guide/tree/master/react#default-props). Projects on React < 18.3 can stay on v1 or override the rule, see [React versions](README.md#react-versions)
+  - [breaking] `react/no-object-type-as-default-prop`: report object, array and function literals used as default parameters, which create a new reference on every render
   - [breaking] `react/no-unsafe`: report `UNSAFE_componentWillMount`, `UNSAFE_componentWillReceiveProps` and `UNSAFE_componentWillUpdate`, and their unprefixed names (`checkAliases: true`)
   - [breaking] raise the `eslint-plugin-react` peer dependency to `^7.35.0`, the first version that reports a default parameter on a required prop of a function component
 

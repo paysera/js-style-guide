@@ -26,7 +26,7 @@ This style guide is mostly based on the standards that are currently prevalent i
 ## Basic Rules
 
   - Only include one React component per file.
-    - However, multiple small [function components](https://react.dev/learn/your-first-component) are allowed per file. eslint: [`react/no-multi-comp`](https://github.com/yannickcr/eslint-plugin-react/blob/master/docs/rules/no-multi-comp.md#ignorestateless).
+    - However, multiple small [function components](https://react.dev/learn/your-first-component) are allowed per file.
   - Always use JSX syntax.
   - Do not use `React.createElement` unless you’re initializing the app from a file that is not JSX.
   - [`react/forbid-prop-types`](https://github.com/yannickcr/eslint-plugin-react/blob/master/docs/rules/forbid-prop-types.md) will allow `arrays` and `objects` only if it is explicitly noted what `array` and `object` contains, using `arrayOf`, `objectOf`, or `shape`.
@@ -524,7 +524,7 @@ We don’t recommend using indexes for keys if the order of items may change.
     };
     ```
 
-  - **`React.memo` and `forwardRef`**: keep the defaults in the inner function’s parameters and never add `defaultProps`. `react/require-default-props` recognises default parameters only on a plain function. When `propTypes` sit on a component wrapped inline, it asks for `defaultProps` instead.
+  - **`React.memo` and `forwardRef`**: keep the defaults in the inner function’s parameters and never add `defaultProps`. `react/require-default-props` recognises default parameters only on a plain function. When `propTypes` sit on a component wrapped inline, it asks for `defaultProps` instead, until a release of eslint-plugin-react ships [jsx-eslint/eslint-plugin-react#4046](https://github.com/jsx-eslint/eslint-plugin-react/pull/4046).
     - `React.memo`: declare the component as a plain function with its `propTypes`, and wrap it at export.
     - `forwardRef` (React < 19): `propTypes` have to sit on the wrapper, so disable `react/require-default-props` around them. On React 19 and later, read `ref` from props instead (see [Refs](#refs)).
 
@@ -561,7 +561,7 @@ We don’t recommend using indexes for keys if the order of items may change.
     /* eslint-enable react/require-default-props */
     ```
 
-  - Hoist object, array and function defaults to module-level constants.
+  - Hoist object, array and function defaults to module-level constants. eslint: [`react/no-object-type-as-default-prop`](https://github.com/jsx-eslint/eslint-plugin-react/blob/master/docs/rules/no-object-type-as-default-prop.md)
 
     > Why? A default parameter is evaluated on every render, so `items = []` creates a new array each time the prop is omitted. A new reference on every render defeats `React.memo`, `useMemo`, `useCallback` and `useEffect` dependency checks. `defaultProps` did not have this problem because the same object was reused.
 
@@ -619,14 +619,19 @@ We don’t recommend using indexes for keys if the order of items may change.
   - Use a ref callback only when you need to run code at the moment the node is attached or detached.
 
   - To pass a ref to your own function component, follow the React version:
-    - React 19 and later: `ref` is a regular prop. Read it from props, and do not wrap new components in [`forwardRef`](https://react.dev/reference/react/forwardRef), which React plans to deprecate.
-    - React < 19: function components do not receive `ref` as a prop, so wrap the component in `forwardRef`.
+    - React 19 and later: `ref` is a regular prop. Read it from props, declare it in `propTypes` as an optional prop with a `null` default, and do not wrap new components in [`forwardRef`](https://react.dev/reference/react/forwardRef), which React plans to deprecate.
+    - React < 19: function components do not receive `ref` as a prop, so wrap the component in `forwardRef` (see [Default Props](#default-props) for its `propTypes`).
 
     ```jsx
     // good, React 19 and later
-    function TextInput({ ref, value, onChange }) {
+    function TextInput({ ref = null, value, onChange }) {
       return <input ref={ref} value={value} onChange={onChange} />;
     }
+    TextInput.propTypes = {
+      ref: PropTypes.oneOfType([PropTypes.func, PropTypes.shape({})]),
+      value: PropTypes.string.isRequired,
+      onChange: PropTypes.func.isRequired,
+    };
 
     // good, React < 19
     const TextInput = forwardRef(({ value, onChange }, ref) => (

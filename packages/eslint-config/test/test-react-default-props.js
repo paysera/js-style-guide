@@ -63,6 +63,20 @@ export default function Avatar(props) {
 ${avatarPropTypes}`), ['destructureInSignature']);
     });
 
+    t.test('function component: accepts a ref prop with a null default parameter', (st) => {
+        st.plan(1);
+        st.deepEqual(defaultPropsMessageIds(`
+export default function TextInput({ ref = null, value, onChange }) {
+    return <input ref={ref} value={value} onChange={onChange} />;
+}
+TextInput.propTypes = {
+    ref: PropTypes.oneOfType([PropTypes.func, PropTypes.shape({})]),
+    value: PropTypes.string.isRequired,
+    onChange: PropTypes.func.isRequired,
+};
+`), []);
+    });
+
     t.test('memo wrapped at export: accepts default parameters', (st) => {
         st.plan(1);
         st.deepEqual(defaultPropsMessageIds(`
@@ -89,7 +103,7 @@ export default React.memo(Avatar);
 `), ['noDefaultPropsWithFunction']);
     });
 
-    t.test('memo wrapped inline: asks for defaultProps despite a default parameter', (st) => {
+    t.test('memo wrapped inline: asks for defaultProps despite a default parameter (until eslint-plugin-react#4046 is released)', (st) => {
         st.plan(1);
         st.deepEqual(defaultPropsMessageIds(`
 const Avatar = React.memo(({ src, size = 48 }) => (
@@ -100,7 +114,7 @@ export default Avatar;
 `), ['shouldHaveDefault']);
     });
 
-    t.test('forwardRef wrapped inline: asks for defaultProps despite a default parameter', (st) => {
+    t.test('forwardRef wrapped inline: asks for defaultProps despite a default parameter (until eslint-plugin-react#4046 is released)', (st) => {
         st.plan(1);
         st.deepEqual(defaultPropsMessageIds(`
 const Avatar = React.forwardRef(({ src, size = 48 }, ref) => (

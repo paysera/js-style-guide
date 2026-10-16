@@ -23,6 +23,8 @@ module.exports = {
         }],
 
         'react/no-unsafe': ['error', { checkAliases: true }],
+
+        'react/no-object-type-as-default-prop': 'error',
     },
     settings: {
         'import/resolver': {
