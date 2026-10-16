@@ -577,9 +577,9 @@ We don’t recommend using indexes for keys if the order of items may change.
     }
 
     // good
-    const NO_ITEMS = [];
+    const emptyItems = [];
 
-    function TodoList({ items = NO_ITEMS }) {
+    function TodoList({ items = emptyItems }) {
       const sortedItems = useMemo(() => sortByDate(items), [items]);
 
       return <List items={sortedItems} />;

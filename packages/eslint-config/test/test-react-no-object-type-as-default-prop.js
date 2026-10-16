@@ -45,11 +45,11 @@ export default TextInput;
     t.test('accepts defaults hoisted to module-level constants', (st) => {
         st.plan(1);
         st.deepEqual(objectDefaultMessageIds(`
-const NO_ITEMS = [];
-const NO_STYLE = {};
+const emptyItems = [];
+const emptyStyle = {};
 const noop = () => {};
 
-export default function TodoList({ items = NO_ITEMS, style = NO_STYLE, onSelect = noop }) {
+export default function TodoList({ items = emptyItems, style = emptyStyle, onSelect = noop }) {
     return <List items={items} style={style} onSelect={onSelect} />;
 }
 `), []);
