@@ -561,7 +561,7 @@ We don’t recommend using indexes for keys if the order of items may change.
     /* eslint-enable react/require-default-props */
     ```
 
-  - Hoist object, array, function and JSX element defaults to module-level constants. A value that must be created fresh, such as `new Date()`, cannot be hoisted: default it to `null` and compute it in the component body. eslint: [`react/no-object-type-as-default-prop`](https://github.com/jsx-eslint/eslint-plugin-react/blob/master/docs/rules/no-object-type-as-default-prop.md), which also reports class, `new`, regex and `Symbol()` defaults. It does not check components wrapped inline in `memo` or `forwardRef`, so hoist their defaults by hand.
+  - Hoist object, array, function and JSX element defaults to module-level constants. A value that must be created per component instance, such as the time it mounted, cannot be hoisted: default the prop to `null` and create the fallback once with a lazy `useState` initializer. eslint: [`react/no-object-type-as-default-prop`](https://github.com/jsx-eslint/eslint-plugin-react/blob/master/docs/rules/no-object-type-as-default-prop.md), which also reports class, `new`, regex and `Symbol()` defaults. It does not check components wrapped inline in `memo` or `forwardRef`, so hoist their defaults by hand.
 
     > Why? A default parameter is evaluated on every render, so `items = []` creates a new array each time the prop is omitted. A new reference on every render defeats `React.memo`, `useMemo`, `useCallback` and `useEffect` dependency checks. `defaultProps` did not have this problem because the same object was reused.
 
@@ -582,14 +582,15 @@ We don’t recommend using indexes for keys if the order of items may change.
       return <List items={sortedItems} />;
     }
 
-    // bad - hoisting would freeze the time at module load
+    // bad - creates a new Date on every render
     function Clock({ startedAt = new Date() }) {
       return <time>{startedAt.toISOString()}</time>;
     }
 
     // good
     function Clock({ startedAt = null }) {
-      const start = startedAt || new Date();
+      const [mountedAt] = useState(() => new Date());
+      const start = startedAt || mountedAt;
 
       return <time>{start.toISOString()}</time>;
     }
@@ -631,7 +632,7 @@ We don’t recommend using indexes for keys if the order of items may change.
   - Use a ref callback only when you need to run code at the moment the node is attached or detached.
 
   - To pass a ref to your own function component, follow the React version:
-    - React 19 and later: `ref` is a regular prop. Read it from props, declare it in `propTypes` as an optional prop with a `null` default (`PropTypes.shape({})` accepts any ref object, including one exposed by `useImperativeHandle`), and do not wrap new components in [`forwardRef`](https://react.dev/reference/react/forwardRef), which React plans to deprecate.
+    - React 19 and later: `ref` is a regular prop. Read it from props, declare it in `propTypes` as an optional prop with a `null` default (`PropTypes.shape({})` leaves `current` unspecified, so it accepts a ref object whether `current` holds a DOM node or a handle set with `useImperativeHandle`), and do not wrap new components in [`forwardRef`](https://react.dev/reference/react/forwardRef), which React plans to deprecate.
     - React < 19: function components do not receive `ref` as a prop, so wrap the component in `forwardRef` (see [Default Props](#default-props) for its `propTypes`).
 
     ```jsx

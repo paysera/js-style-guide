@@ -64,11 +64,12 @@ export default function Avatar({ src = '/avatar.png', size = 48 }) {
 `), []);
     });
 
-    t.test('accepts a null default computed in the body', (st) => {
+    t.test('accepts a null default with a fallback created once in state', (st) => {
         st.plan(1);
         st.deepEqual(objectDefaultMessageIds(`
 export default function Clock({ startedAt = null }) {
-    const start = startedAt || new Date();
+    const [mountedAt] = React.useState(() => new Date());
+    const start = startedAt || mountedAt;
 
     return <time>{start.toISOString()}</time>;
 }
