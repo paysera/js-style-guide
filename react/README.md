@@ -157,6 +157,7 @@ This style guide is mostly based on the standards that are currently prevalent i
     // good
     export default function withFoo(WrappedComponent) {
       function WithFoo(props) {
+        // eslint-disable-next-line react/jsx-props-no-spreading
         return <WrappedComponent {...props} foo />;
       }
 
@@ -416,7 +417,7 @@ We don’t recommend using indexes for keys if the order of items may change.
   // bad
   {todos.map((todo, index) =>
     <Todo
-      {...todo}
+      text={todo.text}
       key={index}
     />
   )}
@@ -424,7 +425,7 @@ We don’t recommend using indexes for keys if the order of items may change.
   // good
   {todos.map(todo => (
     <Todo
-      {...todo}
+      text={todo.text}
       key={todo.id}
     />
   ))}
@@ -469,15 +470,16 @@ We don’t recommend using indexes for keys if the order of items may change.
 
   ```jsx
   // bad
-  render() {
-    const { irrelevantProp, ...relevantProps } = this.props;
-    return <WrappedComponent {...this.props} />
+  function WithFoo(props) {
+    const { irrelevantProp, ...relevantProps } = props;
+    // eslint-disable-next-line react/jsx-props-no-spreading
+    return <WrappedComponent {...props} />;
   }
 
   // good
-  render() {
-    const { irrelevantProp, ...relevantProps } = this.props;
-    return <WrappedComponent {...relevantProps} />
+  function WithFoo({ irrelevantProp, ...relevantProps }) {
+    // eslint-disable-next-line react/jsx-props-no-spreading
+    return <WrappedComponent {...relevantProps} />;
   }
   ```
 

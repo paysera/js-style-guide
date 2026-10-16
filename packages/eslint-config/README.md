@@ -72,7 +72,7 @@ Projects on React < 18.3 that still declare `defaultProps` on function component
 {
     "extends": "@paysera",
     "overrides": [{
-        "files": ["src/legacy/**/*.jsx"],
+        "files": ["src/components/Avatar.jsx", "src/components/UserCard.jsx"],
         "rules": {
             "react/require-default-props": ["error", {
                 "forbidDefaultForRequired": true,
