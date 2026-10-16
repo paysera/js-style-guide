@@ -82,7 +82,7 @@ This style guide is mostly based on the standards that are currently prevalent i
     }
     ```
 
-  - Declare stateless components as normal functions, not as classes or arrow functions. eslint: [`react/prefer-stateless-function`](https://github.com/yannickcr/eslint-plugin-react/blob/master/docs/rules/prefer-stateless-function.md) reports the class form; the arrow-function form is not linted.
+  - Declare function components as normal functions, not as arrow functions, and do not write a stateless component as a class. eslint: [`react/prefer-stateless-function`](https://github.com/yannickcr/eslint-plugin-react/blob/master/docs/rules/prefer-stateless-function.md) reports the class form; the arrow-function form is not linted.
 
     ```jsx
     // bad
@@ -854,7 +854,9 @@ We don’t recommend using indexes for keys if the order of items may change.
       }
 
       render() {
-        return <a href={this.props.url} data-id={this.props.id}>{this.props.text}</a>;
+        const { id, url, text } = this.props;
+
+        return <a href={url} data-id={id}>{text}</a>;
       }
     }
 
