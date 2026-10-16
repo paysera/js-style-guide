@@ -64,7 +64,7 @@ for more information.
 
 ## React versions
 
-Since v2, `react/require-default-props` requires default parameters instead of `defaultProps` in function components, and keeps `defaultProps` for class components. React 18.3 deprecates `defaultProps` on function components and React 19 ignores them, while default parameters work in every React version. See [Default Props](https://github.com/paysera/js-style-guide/tree/master/react#default-props) in the React style guide.
+Since v2, `react/require-default-props` requires default parameters instead of `defaultProps` in plain function components, and keeps `defaultProps` for class components. React 18.3 deprecates `defaultProps` on function components and React 19 drops them (the automatic JSX runtime ignores them), while default parameters work in every React version. The rule still checks components wrapped inline in `memo` or `forwardRef` like classes; see [Default Props](https://github.com/paysera/js-style-guide/tree/master/react#default-props) in the React style guide for how to declare them.
 
 Projects on React < 18.3 that still declare `defaultProps` on function components can stay on `@paysera/eslint-config@1`, or use v2 and restore the previous behaviour until they migrate:
 

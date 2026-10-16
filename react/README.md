@@ -82,7 +82,7 @@ This style guide is mostly based on the standards that are currently prevalent i
     }
     ```
 
-  - Declare function components with normal functions (not arrow functions). eslint: [`react/prefer-stateless-function`](https://github.com/yannickcr/eslint-plugin-react/blob/master/docs/rules/prefer-stateless-function.md)
+  - Declare stateless components as normal functions, not as classes or arrow functions. eslint: [`react/prefer-stateless-function`](https://github.com/yannickcr/eslint-plugin-react/blob/master/docs/rules/prefer-stateless-function.md) reports the class form; the arrow-function form is not linted.
 
     ```jsx
     // bad
@@ -429,16 +429,17 @@ We don’t recommend using indexes for keys if the order of items may change.
   ))}
   ```
 
-  - Use spread props sparingly.
+  - Use spread props sparingly. eslint: [`react/jsx-props-no-spreading`](https://github.com/jsx-eslint/eslint-plugin-react/blob/master/docs/rules/jsx-props-no-spreading.md)
   > Why? Otherwise you’re more likely to pass unnecessary props down to components. And for React v15.6.1 and older, you could [pass invalid HTML attributes to the DOM](https://legacy.reactjs.org/blog/2017/09/08/dom-attributes-in-react-16.html).
 
-  Exceptions:
+  Exceptions. The config reports every spread, so disable `react/jsx-props-no-spreading` on the line for these:
 
   - HOCs that proxy down props and hoist propTypes
 
   ```jsx
   function withFoo(WrappedComponent) {
     function WithFoo(props) {
+      // eslint-disable-next-line react/jsx-props-no-spreading
       return <WrappedComponent {...props} />;
     }
 
@@ -457,7 +458,8 @@ We don’t recommend using indexes for keys if the order of items may change.
       isPublished: false,
     };
 
-    return <div {...props} />;
+    // eslint-disable-next-line react/jsx-props-no-spreading
+    return <Article {...props} />;
   }
   ```
 
@@ -488,14 +490,14 @@ We don’t recommend using indexes for keys if the order of items may change.
     | --- | --- | --- |
     | < 18.3 | Default parameters. `defaultProps` still works, so existing code may keep it until the upgrade (see [`@paysera/eslint-config`](../packages/eslint-config/README.md#react-versions)), but new code must not add it | `defaultProps` |
     | 18.3.x | Default parameters only. `defaultProps` logs a deprecation warning | `defaultProps` |
-    | 19 and later | Default parameters only. `defaultProps` is ignored, so the default never applies | `defaultProps` |
+    | 19 and later | Default parameters only. React 19 dropped `defaultProps` for function components: the automatic JSX runtime ignores it, so the default never applies, and only the classic `React.createElement` runtime still reads it | `defaultProps` |
 
     Default parameters work in every React version, so code written this way needs no changes when the project upgrades.
 
-  - **Function components**: destructure props in the function signature and assign the defaults there. Do not use `defaultProps`. The same applies to components wrapped in `React.memo` or `forwardRef`: put the defaults in the inner function’s parameters.
+  - **Function components**: destructure props in the function signature and assign the defaults there. Do not use `defaultProps`.
 
     ```jsx
-    // bad - warns in React 18.3, ignored in React 19
+    // bad - warns in React 18.3, dropped for function components in React 19
     function Avatar({ src, size }) {
       return <img src={src} width={size} height={size} alt="" />;
     }
@@ -520,6 +522,43 @@ We don’t recommend using indexes for keys if the order of items may change.
       src: PropTypes.string.isRequired,
       size: PropTypes.number,
     };
+    ```
+
+  - **`React.memo` and `forwardRef`**: keep the defaults in the inner function’s parameters and never add `defaultProps`. `react/require-default-props` recognises default parameters only on a plain function. When `propTypes` sit on a component wrapped inline, it asks for `defaultProps` instead.
+    - `React.memo`: declare the component as a plain function with its `propTypes`, and wrap it at export.
+    - `forwardRef` (React < 19): `propTypes` have to sit on the wrapper, so disable `react/require-default-props` around them. On React 19 and later, read `ref` from props instead (see [Refs](#refs)).
+
+    ```jsx
+    // bad - the linter asks for defaultProps, which React 18.3 deprecates for memo components
+    const Avatar = React.memo(({ src, size = 48 }) => (
+      <img src={src} width={size} height={size} alt="" />
+    ));
+    Avatar.propTypes = {
+      src: PropTypes.string.isRequired,
+      size: PropTypes.number,
+    };
+
+    // good
+    function Avatar({ src, size = 48 }) {
+      return <img src={src} width={size} height={size} alt="" />;
+    }
+    Avatar.propTypes = {
+      src: PropTypes.string.isRequired,
+      size: PropTypes.number,
+    };
+
+    export default React.memo(Avatar);
+
+    // good, React < 19
+    const TextInput = forwardRef(({ value = '', onChange }, ref) => (
+      <input ref={ref} value={value} onChange={onChange} />
+    ));
+    /* eslint-disable react/require-default-props */
+    TextInput.propTypes = {
+      value: PropTypes.string,
+      onChange: PropTypes.func.isRequired,
+    };
+    /* eslint-enable react/require-default-props */
     ```
 
   - Hoist object, array and function defaults to module-level constants.
@@ -590,9 +629,9 @@ We don’t recommend using indexes for keys if the order of items may change.
     }
 
     // good, React < 19
-    const TextInput = forwardRef(function TextInput({ value, onChange }, ref) {
-      return <input ref={ref} value={value} onChange={onChange} />;
-    });
+    const TextInput = forwardRef(({ value, onChange }, ref) => (
+      <input ref={ref} value={value} onChange={onChange} />
+    ));
     ```
 
 ## Parentheses
@@ -770,7 +809,7 @@ We don’t recommend using indexes for keys if the order of items may change.
   1. *optional render methods* like `renderNavigation()` or `renderProfilePicture()`
   1. `render`
 
-  - Do not use `componentWillMount`, `componentWillReceiveProps` or `componentWillUpdate`, nor their `UNSAFE_` aliases. React 16.3 [marked them unsafe](https://legacy.reactjs.org/blog/2018/03/27/update-on-async-rendering.html) because they misbehave with async rendering. Use `componentDidMount`, `getDerivedStateFromProps` or `componentDidUpdate` instead. eslint: [`react/no-deprecated`](https://github.com/jsx-eslint/eslint-plugin-react/blob/master/docs/rules/no-deprecated.md)
+  - Do not use `componentWillMount`, `componentWillReceiveProps` or `componentWillUpdate`, nor their `UNSAFE_` aliases. React 16.3 [marked them unsafe](https://legacy.reactjs.org/blog/2018/03/27/update-on-async-rendering.html) because they misbehave with async rendering. Use `componentDidMount`, `getDerivedStateFromProps` or `componentDidUpdate` instead. eslint: [`react/no-unsafe`](https://github.com/jsx-eslint/eslint-plugin-react/blob/master/docs/rules/no-unsafe.md), [`react/no-deprecated`](https://github.com/jsx-eslint/eslint-plugin-react/blob/master/docs/rules/no-deprecated.md)
 
   - How to define `propTypes` and `defaultProps` in a class component:
 

@@ -1,28 +1,8 @@
 import test from 'tape';
-import { CLIEngine } from 'eslint';
-import eslintrc from '..';
-
-const cli = new CLIEngine({
-    useEslintrc: false,
-    baseConfig: eslintrc,
-});
+import errorMessageIds from './lint';
 
 function defaultPropsMessageIds(component) {
-    const [result] = cli.executeOnText(`
-import React from 'react';
-import PropTypes from 'prop-types';
-
-${component}
-`).results;
-    const parsingError = result.messages.find(({ fatal }) => fatal);
-
-    if (parsingError) {
-        throw new Error(parsingError.message);
-    }
-
-    return result.messages
-        .filter(({ ruleId }) => ruleId === 'react/require-default-props')
-        .map(({ messageId }) => messageId);
+    return errorMessageIds('react/require-default-props', component);
 }
 
 const avatarPropTypes = `
@@ -83,6 +63,54 @@ export default function Avatar(props) {
 ${avatarPropTypes}`), ['destructureInSignature']);
     });
 
+    t.test('memo wrapped at export: accepts default parameters', (st) => {
+        st.plan(1);
+        st.deepEqual(defaultPropsMessageIds(`
+function Avatar({ src, size = 48 }) {
+    return <img src={src} width={size} height={size} alt="" />;
+}
+${avatarPropTypes}
+export default React.memo(Avatar);
+`), []);
+    });
+
+    t.test('memo wrapped at export: rejects defaultProps', (st) => {
+        st.plan(1);
+        st.deepEqual(defaultPropsMessageIds(`
+function Avatar({ src, size = 48 }) {
+    return <img src={src} width={size} height={size} alt="" />;
+}
+${avatarPropTypes}
+Avatar.defaultProps = {
+    size: 48,
+};
+
+export default React.memo(Avatar);
+`), ['noDefaultPropsWithFunction']);
+    });
+
+    t.test('memo wrapped inline: asks for defaultProps despite a default parameter', (st) => {
+        st.plan(1);
+        st.deepEqual(defaultPropsMessageIds(`
+const Avatar = React.memo(({ src, size = 48 }) => (
+    <img src={src} width={size} height={size} alt="" />
+));
+${avatarPropTypes}
+export default Avatar;
+`), ['shouldHaveDefault']);
+    });
+
+    t.test('forwardRef wrapped inline: asks for defaultProps despite a default parameter', (st) => {
+        st.plan(1);
+        st.deepEqual(defaultPropsMessageIds(`
+const Avatar = React.forwardRef(({ src, size = 48 }, ref) => (
+    <img ref={ref} src={src} width={size} height={size} alt="" />
+));
+${avatarPropTypes}
+export default Avatar;
+`), ['shouldHaveDefault']);
+    });
+
     t.test('class component: accepts defaultProps', (st) => {
         st.plan(1);
         st.deepEqual(defaultPropsMessageIds(`
@@ -109,5 +137,22 @@ export default class Avatar extends React.Component {
     }
 }
 ${avatarPropTypes}`), ['shouldHaveDefault']);
+    });
+
+    t.test('class component: rejects defaultProps on a required prop', (st) => {
+        st.plan(1);
+        st.deepEqual(defaultPropsMessageIds(`
+export default class Avatar extends React.Component {
+    render() {
+        const { src, size } = this.props;
+        return <img src={src} width={size} height={size} alt="" />;
+    }
+}
+${avatarPropTypes}
+Avatar.defaultProps = {
+    src: '/avatar.png',
+    size: 48,
+};
+`), ['noDefaultWithRequired']);
     });
 });

@@ -21,6 +21,8 @@ module.exports = {
             classes: 'defaultProps',
             functions: 'defaultArguments',
         }],
+
+        'react/no-unsafe': ['error', { checkAliases: true }],
     },
     settings: {
         'import/resolver': {
