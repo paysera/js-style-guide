@@ -715,10 +715,10 @@ We don’t recommend using indexes for keys if the order of items may change.
   - Use arrow functions to close over local variables. It is handy when you need to pass additional data to an event handler. Although, make sure they [do not massively hurt performance](https://www.bignerdranch.com/blog/choosing-the-best-approach-for-react-event-handlers/), in particular when passed to custom components that might be PureComponents, because they will trigger a possibly needless rerender every time.
 
     ```jsx
-    function ItemList(props) {
+    function ItemList({ items }) {
       return (
         <ul>
-          {props.items.map((item, index) => (
+          {items.map((item, index) => (
             <Item
               key={item.key}
               onClick={event => doSomethingWith(event, item.name, index)}
