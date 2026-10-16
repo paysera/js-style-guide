@@ -7,7 +7,7 @@ This style guide is mostly based on the standards that are currently prevalent i
 ## Table of Contents
 
   1. [Basic Rules](#basic-rules)
-  1. [Class vs `React.createClass` vs stateless](#class-vs-reactcreateclass-vs-stateless)
+  1. [Function components vs classes](#function-components-vs-classes)
   1. [Mixins](#mixins)
   1. [Naming](#naming)
   1. [Declaration](#declaration)
@@ -15,6 +15,7 @@ This style guide is mostly based on the standards that are currently prevalent i
   1. [Quotes](#quotes)
   1. [Spacing](#spacing)
   1. [Props](#props)
+  1. [Default Props](#default-props)
   1. [Refs](#refs)
   1. [Parentheses](#parentheses)
   1. [Tags](#tags)
@@ -25,34 +26,63 @@ This style guide is mostly based on the standards that are currently prevalent i
 ## Basic Rules
 
   - Only include one React component per file.
-    - However, multiple [Stateless, or Pure, Components](https://facebook.github.io/react/docs/reusable-components.html#stateless-functions) are allowed per file. eslint: [`react/no-multi-comp`](https://github.com/yannickcr/eslint-plugin-react/blob/master/docs/rules/no-multi-comp.md#ignorestateless).
+    - However, multiple small [function components](https://react.dev/learn/your-first-component) are allowed per file. eslint: [`react/no-multi-comp`](https://github.com/yannickcr/eslint-plugin-react/blob/master/docs/rules/no-multi-comp.md#ignorestateless).
   - Always use JSX syntax.
   - Do not use `React.createElement` unless you’re initializing the app from a file that is not JSX.
   - [`react/forbid-prop-types`](https://github.com/yannickcr/eslint-plugin-react/blob/master/docs/rules/forbid-prop-types.md) will allow `arrays` and `objects` only if it is explicitly noted what `array` and `object` contains, using `arrayOf`, `objectOf`, or `shape`.
+  - React checks `propTypes` only in development builds and only up to React 18; [React 19 silently ignores them](https://react.dev/blog/2024/04/25/react-19-upgrade-guide#removed-proptypes-and-defaultprops). In JavaScript projects keep declaring them anyway: they document the component, and [`react/prop-types`](https://github.com/jsx-eslint/eslint-plugin-react/blob/master/docs/rules/prop-types.md) and [`react/require-default-props`](https://github.com/jsx-eslint/eslint-plugin-react/blob/master/docs/rules/require-default-props.md) rely on them. In TypeScript projects, describe props with TypeScript types instead, as the React team recommends.
+  - Read context with [`useContext`](https://react.dev/reference/react/useContext) in function components or `contextType` in classes. Do not use the legacy `contextTypes`, `childContextTypes` or `getChildContext` API, which React 19 removed.
 
-## Class vs `React.createClass` vs stateless
+## Function components vs classes
 
-  - If you have internal state and/or refs, prefer `class extends React.Component` over `React.createClass`. eslint: [`react/prefer-es6-class`](https://github.com/yannickcr/eslint-plugin-react/blob/master/docs/rules/prefer-es6-class.md) [`react/prefer-stateless-function`](https://github.com/yannickcr/eslint-plugin-react/blob/master/docs/rules/prefer-stateless-function.md)
+  - Write new components as function components, and use [Hooks](https://react.dev/reference/react/hooks) for state, refs and side effects (React 16.8+).
+
+    > Why? Current React APIs and documentation are designed around function components. They are shorter than classes, have no `this` to bind, and let you share logic through custom Hooks instead of higher-order components.
 
     ```jsx
     // bad
-    const Listing = React.createClass({
-      // ...
-      render() {
-        return <div>{this.state.hello}</div>;
+    class Toggle extends React.Component {
+      constructor(props) {
+        super(props);
+
+        this.state = { isOn: false };
+        this.onClick = this.onClick.bind(this);
       }
-    });
+
+      onClick() {
+        this.setState(({ isOn }) => ({ isOn: !isOn }));
+      }
+
+      render() {
+        return <button type="button" onClick={this.onClick}>{this.state.isOn ? 'On' : 'Off'}</button>;
+      }
+    }
 
     // good
-    class Listing extends React.Component {
-      // ...
-      render() {
-        return <div>{this.state.hello}</div>;
-      }
+    function Toggle() {
+      const [isOn, setIsOn] = useState(false);
+
+      return <button type="button" onClick={() => setIsOn(!isOn)}>{isOn ? 'On' : 'Off'}</button>;
     }
     ```
 
-    And if you don’t have state or refs, prefer normal functions (not arrow functions) over classes:
+  - Follow the [Rules of Hooks](https://react.dev/reference/rules/rules-of-hooks): call Hooks only at the top level of function components and custom Hooks, never inside conditions, loops or nested functions.
+
+  - Use a class only when React requires one, for example for an [error boundary](https://react.dev/reference/react/Component#catching-rendering-errors-with-an-error-boundary). Extend `React.Component`; never use `React.createClass`, which React 16 removed. eslint: [`react/prefer-es6-class`](https://github.com/yannickcr/eslint-plugin-react/blob/master/docs/rules/prefer-es6-class.md)
+
+    ```jsx
+    // bad
+    const ErrorBoundary = React.createClass({
+      // ...
+    });
+
+    // good
+    class ErrorBoundary extends React.Component {
+      // ...
+    }
+    ```
+
+  - Declare function components with normal functions (not arrow functions). eslint: [`react/prefer-stateless-function`](https://github.com/yannickcr/eslint-plugin-react/blob/master/docs/rules/prefer-stateless-function.md)
 
     ```jsx
     // bad
@@ -75,7 +105,7 @@ This style guide is mostly based on the standards that are currently prevalent i
 
 ## Mixins
 
-  - [Do not use mixins](https://facebook.github.io/react/blog/2016/07/13/mixins-considered-harmful.html).
+  - [Do not use mixins](https://legacy.reactjs.org/blog/2016/07/13/mixins-considered-harmful.html).
 
   > Why? Mixins introduce implicit dependencies, cause name clashes, and cause snowballing complexity. Most use cases for mixins can be accomplished in better ways via components, higher-order components, or utility modules.
 
@@ -399,68 +429,35 @@ We don’t recommend using indexes for keys if the order of items may change.
   ))}
   ```
 
-  - Always define explicit defaultProps for all non-required props.
-
-  > Why? propTypes are a form of documentation, and providing defaultProps means the reader of your code doesn’t have to assume as much. In addition, it can mean that your code can omit certain type checks.
-
-  ```jsx
-  // bad
-  function SFC({ foo, bar, children }) {
-    return <div>{foo}{bar}{children}</div>;
-  }
-  SFC.propTypes = {
-    foo: PropTypes.number.isRequired,
-    bar: PropTypes.string,
-    children: PropTypes.node,
-  };
-
-  // good
-  function SFC({ foo, bar, children }) {
-    return <div>{foo}{bar}{children}</div>;
-  }
-  SFC.propTypes = {
-    foo: PropTypes.number.isRequired,
-    bar: PropTypes.string,
-    children: PropTypes.node,
-  };
-  SFC.defaultProps = {
-    bar: '',
-    children: null,
-  };
-  ```
-
   - Use spread props sparingly.
-  > Why? Otherwise you’re more likely to pass unnecessary props down to components. And for React v15.6.1 and older, you could [pass invalid HTML attributes to the DOM](https://reactjs.org/blog/2017/09/08/dom-attributes-in-react-16.html).
+  > Why? Otherwise you’re more likely to pass unnecessary props down to components. And for React v15.6.1 and older, you could [pass invalid HTML attributes to the DOM](https://legacy.reactjs.org/blog/2017/09/08/dom-attributes-in-react-16.html).
 
   Exceptions:
 
   - HOCs that proxy down props and hoist propTypes
 
   ```jsx
-  function HOC(WrappedComponent) {
-    return class Proxy extends React.Component {
-      Proxy.propTypes = {
-        text: PropTypes.string,
-        isLoading: PropTypes.bool
-      };
-
-      render() {
-        return <WrappedComponent {...this.props} />
-      }
+  function withFoo(WrappedComponent) {
+    function WithFoo(props) {
+      return <WrappedComponent {...props} />;
     }
+
+    WithFoo.propTypes = WrappedComponent.propTypes;
+
+    return WithFoo;
   }
   ```
 
   - Spreading objects with known, explicit props. This can be particularly useful when testing React components with Mocha’s beforeEach construct.
 
   ```jsx
-  export default function Foo {
+  export default function Foo() {
     const props = {
       text: '',
-      isPublished: false
-    }
+      isPublished: false,
+    };
 
-    return (<div {...props} />);
+    return <div {...props} />;
   }
   ```
 
@@ -481,9 +478,77 @@ We don’t recommend using indexes for keys if the order of items may change.
   }
   ```
 
+## Default Props
+
+  - Give every non-required prop a default value, and never give one to a required prop. How the default is declared depends on the component type and the React version. eslint: [`react/require-default-props`](https://github.com/jsx-eslint/eslint-plugin-react/blob/master/docs/rules/require-default-props.md)
+
+    > Why? Defaults document what a component expects when a prop is omitted, and the component body does not have to check for `undefined`.
+
+    | React version | Function components | Class components |
+    | --- | --- | --- |
+    | < 18.3 | Default parameters. `defaultProps` still works, so existing code may keep it until the upgrade (see [`@paysera/eslint-config`](../packages/eslint-config/README.md#react-versions)), but new code must not add it | `defaultProps` |
+    | 18.3.x | Default parameters only. `defaultProps` logs a deprecation warning | `defaultProps` |
+    | 19 and later | Default parameters only. `defaultProps` is ignored, so the default never applies | `defaultProps` |
+
+    Default parameters work in every React version, so code written this way needs no changes when the project upgrades.
+
+  - **Function components**: destructure props in the function signature and assign the defaults there. Do not use `defaultProps`. The same applies to components wrapped in `React.memo` or `forwardRef`: put the defaults in the inner function’s parameters.
+
+    ```jsx
+    // bad - warns in React 18.3, ignored in React 19
+    function Avatar({ src, size }) {
+      return <img src={src} width={size} height={size} alt="" />;
+    }
+    Avatar.propTypes = {
+      src: PropTypes.string.isRequired,
+      size: PropTypes.number,
+    };
+    Avatar.defaultProps = {
+      size: 48,
+    };
+
+    // bad - props are not destructured, so the default has nowhere to go
+    function Avatar(props) {
+      return <img src={props.src} width={props.size} height={props.size} alt="" />;
+    }
+
+    // good
+    function Avatar({ src, size = 48 }) {
+      return <img src={src} width={size} height={size} alt="" />;
+    }
+    Avatar.propTypes = {
+      src: PropTypes.string.isRequired,
+      size: PropTypes.number,
+    };
+    ```
+
+  - Hoist object, array and function defaults to module-level constants.
+
+    > Why? A default parameter is evaluated on every render, so `items = []` creates a new array each time the prop is omitted. A new reference on every render defeats `React.memo`, `useMemo`, `useCallback` and `useEffect` dependency checks. `defaultProps` did not have this problem because the same object was reused.
+
+    ```jsx
+    // bad
+    function TodoList({ items = [] }) {
+      const sortedItems = useMemo(() => sortByDate(items), [items]);
+
+      return <List items={sortedItems} />;
+    }
+
+    // good
+    const NO_ITEMS = [];
+
+    function TodoList({ items = NO_ITEMS }) {
+      const sortedItems = useMemo(() => sortByDate(items), [items]);
+
+      return <List items={sortedItems} />;
+    }
+    ```
+
+  - **Class components**: keep using `defaultProps`; React 19 still supports it for classes. Assign it after the class body, the same way as `propTypes` (see [Ordering](#ordering)). eslint: [`react/static-property-placement`](https://github.com/jsx-eslint/eslint-plugin-react/blob/master/docs/rules/static-property-placement.md)
+
 ## Refs
 
-  - Always use ref callbacks. eslint: [`react/no-string-refs`](https://github.com/yannickcr/eslint-plugin-react/blob/master/docs/rules/no-string-refs.md)
+  - Do not use string refs; React 19 removed them. Use [`useRef`](https://react.dev/reference/react/useRef) in function components and [`createRef`](https://react.dev/reference/react/createRef) in class components. eslint: [`react/no-string-refs`](https://github.com/yannickcr/eslint-plugin-react/blob/master/docs/rules/no-string-refs.md)
 
     ```jsx
     // bad
@@ -492,9 +557,42 @@ We don’t recommend using indexes for keys if the order of items may change.
     />
 
     // good
-    <Foo
-      ref={(ref) => { this.myRef = ref; }}
-    />
+    function SearchForm() {
+      const inputRef = useRef(null);
+
+      return <input ref={inputRef} />;
+    }
+
+    // good
+    class SearchForm extends React.Component {
+      constructor(props) {
+        super(props);
+
+        this.inputRef = React.createRef();
+      }
+
+      render() {
+        return <input ref={this.inputRef} />;
+      }
+    }
+    ```
+
+  - Use a ref callback only when you need to run code at the moment the node is attached or detached.
+
+  - To pass a ref to your own function component, follow the React version:
+    - React 19 and later: `ref` is a regular prop. Read it from props, and do not wrap new components in [`forwardRef`](https://react.dev/reference/react/forwardRef), which React plans to deprecate.
+    - React < 19: function components do not receive `ref` as a prop, so wrap the component in `forwardRef`.
+
+    ```jsx
+    // good, React 19 and later
+    function TextInput({ ref, value, onChange }) {
+      return <input ref={ref} value={value} onChange={onChange} />;
+    }
+
+    // good, React < 19
+    const TextInput = forwardRef(function TextInput({ value, onChange }, ref) {
+      return <input ref={ref} value={value} onChange={onChange} />;
+    });
     ```
 
 ## Parentheses
@@ -571,7 +669,7 @@ We don’t recommend using indexes for keys if the order of items may change.
     }
     ```
 
-  - Bind event handlers for the render method in the constructor. eslint: [`react/jsx-no-bind`](https://github.com/yannickcr/eslint-plugin-react/blob/master/docs/rules/jsx-no-bind.md)
+  - In class components, bind event handlers for the render method in the constructor. eslint: [`react/jsx-no-bind`](https://github.com/yannickcr/eslint-plugin-react/blob/master/docs/rules/jsx-no-bind.md)
 
     > Why? A bind call in the render path creates a brand new function on every single render. Do not use arrow functions in class fields, because it makes them [challenging to test and debug, and can negatively impact performance](https://medium.com/@charpeni/arrow-functions-in-class-properties-might-not-be-as-great-as-we-think-3b3551c440b1), and because conceptually, class fields are for data, not logic.
 
@@ -655,17 +753,16 @@ We don’t recommend using indexes for keys if the order of items may change.
 
 ## Ordering
 
-  - Ordering for `class extends React.Component`:
+  - Ordering for `class extends React.Component`: eslint: [`react/sort-comp`](https://github.com/yannickcr/eslint-plugin-react/blob/master/docs/rules/sort-comp.md)
 
   1. optional `static` methods
   1. `constructor`
-  1. `getChildContext`
-  1. `componentWillMount`
+  1. `getDerivedStateFromProps`
   1. `componentDidMount`
-  1. `componentWillReceiveProps`
   1. `shouldComponentUpdate`
-  1. `componentWillUpdate`
+  1. `getSnapshotBeforeUpdate`
   1. `componentDidUpdate`
+  1. `componentDidCatch`
   1. `componentWillUnmount`
   1. *event handlers starting with 'handle'* like `handleSubmit()` or `handleChangeDescription()`
   1. *event handlers starting with 'on'* like `onClickSubmit()` or `onChangeDescription()`
@@ -673,7 +770,9 @@ We don’t recommend using indexes for keys if the order of items may change.
   1. *optional render methods* like `renderNavigation()` or `renderProfilePicture()`
   1. `render`
 
-  - How to define `propTypes`, `defaultProps`, `contextTypes`, etc...
+  - Do not use `componentWillMount`, `componentWillReceiveProps` or `componentWillUpdate`, nor their `UNSAFE_` aliases. React 16.3 [marked them unsafe](https://legacy.reactjs.org/blog/2018/03/27/update-on-async-rendering.html) because they misbehave with async rendering. Use `componentDidMount`, `getDerivedStateFromProps` or `componentDidUpdate` instead. eslint: [`react/no-deprecated`](https://github.com/jsx-eslint/eslint-plugin-react/blob/master/docs/rules/no-deprecated.md)
+
+  - How to define `propTypes` and `defaultProps` in a class component:
 
     ```jsx
     import React from 'react';
@@ -705,36 +804,12 @@ We don’t recommend using indexes for keys if the order of items may change.
     export default Link;
     ```
 
-  - Ordering for `React.createClass`: eslint: [`react/sort-comp`](https://github.com/yannickcr/eslint-plugin-react/blob/master/docs/rules/sort-comp.md)
-
-  1. `displayName`
-  1. `propTypes`
-  1. `contextTypes`
-  1. `childContextTypes`
-  1. `mixins`
-  1. `statics`
-  1. `defaultProps`
-  1. `getDefaultProps`
-  1. `getInitialState`
-  1. `getChildContext`
-  1. `componentWillMount`
-  1. `componentDidMount`
-  1. `componentWillReceiveProps`
-  1. `shouldComponentUpdate`
-  1. `componentWillUpdate`
-  1. `componentDidUpdate`
-  1. `componentWillUnmount`
-  1. *clickHandlers or eventHandlers* like `onClickSubmit()` or `onChangeDescription()`
-  1. *getter methods for `render`* like `getSelectReason()` or `getFooterContent()`
-  1. *optional render methods* like `renderNavigation()` or `renderProfilePicture()`
-  1. `render`
-
 ## `isMounted`
 
   - Do not use `isMounted`. eslint: [`react/no-is-mounted`](https://github.com/yannickcr/eslint-plugin-react/blob/master/docs/rules/no-is-mounted.md)
 
-  > Why? [`isMounted` is an anti-pattern][anti-pattern], is not available when using ES6 classes, and is on its way to being officially deprecated.
+  > Why? [`isMounted` is an anti-pattern][anti-pattern], and it is not available in ES6 classes or function components. Cancel subscriptions and pending requests in the effect cleanup or in `componentWillUnmount` instead.
 
-  [anti-pattern]: https://facebook.github.io/react/blog/2015/12/16/ismounted-antipattern.html
+  [anti-pattern]: https://legacy.reactjs.org/blog/2015/12/16/ismounted-antipattern.html
 
 **[⬆ back to top](#table-of-contents)**

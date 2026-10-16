@@ -15,6 +15,12 @@ module.exports = {
         // Enforce JSX indentation
         // https://github.com/yannickcr/eslint-plugin-react/blob/master/docs/rules/jsx-indent.md
         'react/jsx-indent': ['error', 4],
+
+        'react/require-default-props': ['error', {
+            forbidDefaultForRequired: true,
+            classes: 'defaultProps',
+            functions: 'defaultArguments',
+        }],
     },
     settings: {
         'import/resolver': {

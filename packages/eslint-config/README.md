@@ -62,6 +62,26 @@ See [Paysera's Javascript styleguide](https://github.com/paysera/js-style-guide)
 the [ESlint config docs](https://eslint.org/docs/user-guide/configuring#extending-configuration-files)
 for more information.
 
+## React versions
+
+Since v2, `react/require-default-props` requires default parameters instead of `defaultProps` in function components, and keeps `defaultProps` for class components. React 18.3 deprecates `defaultProps` on function components and React 19 ignores them, while default parameters work in every React version. See [Default Props](https://github.com/paysera/js-style-guide/tree/master/react#default-props) in the React style guide.
+
+Projects on React < 18.3 that still declare `defaultProps` on function components can stay on `@paysera/eslint-config@1`, or use v2 and restore the previous behaviour until they migrate:
+
+```json
+{
+    "extends": "@paysera",
+    "rules": {
+        "react/require-default-props": ["error", {
+            "forbidDefaultForRequired": true,
+            "functions": "defaultProps"
+        }]
+    }
+}
+```
+
+Remove the override before upgrading to React 18.3 or later.
+
 ## Improving this config
 
 Consider adding test cases if you're making complicated rules changes, like anything involving regexes. Perhaps in a distant future, we could use literate programming to structure our README as test cases for our .eslintrc?
