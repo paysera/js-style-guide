@@ -62,11 +62,15 @@ This style guide is mostly based on the standards that are currently prevalent i
     function Toggle() {
       const [isOn, setIsOn] = useState(false);
 
-      return <button type="button" onClick={() => setIsOn(!isOn)}>{isOn ? 'On' : 'Off'}</button>;
+      return <button type="button" onClick={() => setIsOn(wasOn => !wasOn)}>{isOn ? 'On' : 'Off'}</button>;
     }
     ```
 
   - Follow the [Rules of Hooks](https://react.dev/reference/rules/rules-of-hooks): call Hooks only at the top level of function components and custom Hooks, never inside conditions, loops or nested functions.
+
+  - List every [reactive value](https://react.dev/learn/lifecycle-of-reactive-effects#all-variables-declared-in-the-component-body-are-reactive) that a `useEffect`, `useMemo` or `useCallback` callback reads in its dependency array: props, state, and variables and functions declared in the component body.
+
+  - `@paysera/eslint-config` does not lint the Rules of Hooks or dependency arrays. To check them, add [`eslint-plugin-react-hooks`](https://react.dev/reference/eslint-plugin-react-hooks) to the project.
 
   - Use a class only when React requires one, for example for an [error boundary](https://react.dev/reference/react/Component#catching-rendering-errors-with-an-error-boundary). Extend `React.Component`; never use `React.createClass`, which React 16 removed. eslint: [`react/prefer-es6-class`](https://github.com/yannickcr/eslint-plugin-react/blob/master/docs/rules/prefer-es6-class.md)
 
@@ -527,7 +531,7 @@ We don’t recommend using indexes for keys if the order of items may change.
     };
     ```
 
-  - **`React.memo` and `forwardRef`**: keep the defaults in the inner function’s parameters and never add `defaultProps`. `react/require-default-props` recognises default parameters only on a plain function. When `propTypes` sit on a component wrapped inline, it asks for `defaultProps` instead, until a release of eslint-plugin-react ships [jsx-eslint/eslint-plugin-react#4046](https://github.com/jsx-eslint/eslint-plugin-react/pull/4046).
+  - **`React.memo` and `forwardRef`**: keep the defaults in the inner function’s parameters and never add `defaultProps`. `react/require-default-props` recognises default parameters only on a plain function. When `propTypes` sit on a component wrapped inline, it asks for `defaultProps` instead, until a release of eslint-plugin-react ships [jsx-eslint/eslint-plugin-react#4046](https://github.com/jsx-eslint/eslint-plugin-react/pull/4046). Do not follow that advice: the linter then accepts the `defaultProps`, but React 18.3 deprecates them for `memo` components and React 19 drops them for `memo` and `forwardRef` components the same way as for plain function components.
     - `React.memo`: declare the component as a plain function with its `propTypes`, and wrap it at export.
     - `forwardRef` (React < 19): `propTypes` have to sit on the wrapper, so disable `react/require-default-props` around them. On React 19 and later, read `ref` from props instead (see [Refs](#refs)).
 
@@ -635,11 +639,11 @@ We don’t recommend using indexes for keys if the order of items may change.
   - Use a ref callback only when you need to run code at the moment the node is attached or detached.
 
   - To pass a ref to your own function component, follow the React version:
-    - React 19 and later: `ref` is a regular prop. Read it from props, declare it in `propTypes` as an optional prop with a `null` default (`PropTypes.shape({})` leaves `current` unspecified, so it accepts a ref object whether `current` holds a DOM node or a handle set with `useImperativeHandle`), and do not wrap new components in [`forwardRef`](https://react.dev/reference/react/forwardRef), which React plans to deprecate.
-    - React < 19: function components do not receive `ref` as a prop, so wrap the component in `forwardRef` (see [Default Props](#default-props) for its `propTypes`).
+    - React 19 and later only: `ref` is a regular prop. Read it from props, declare it in `propTypes` as an optional prop with a `null` default (`PropTypes.shape({})` leaves `current` unspecified, so it accepts a ref object whether `current` holds a DOM node or a handle set with `useImperativeHandle`), and do not wrap new components in [`forwardRef`](https://react.dev/reference/react/forwardRef), which React plans to deprecate.
+    - React < 19: function components do not receive `ref` as a prop, so wrap the component in `forwardRef` (see [Default Props](#default-props) for its `propTypes`). A component written the React 19 way never attaches the ref there: React only warns in development, and the linter accepts it.
 
     ```jsx
-    // good, React 19 and later
+    // good, React 19 and later only - in React < 19 this ref never attaches
     function TextInput({ ref = null, value, onChange }) {
       return <input ref={ref} value={value} onChange={onChange} />;
     }
@@ -815,7 +819,7 @@ We don’t recommend using indexes for keys if the order of items may change.
 
   - Ordering for `class extends React.Component`: eslint: [`react/sort-comp`](https://github.com/yannickcr/eslint-plugin-react/blob/master/docs/rules/sort-comp.md)
 
-  1. optional `static` methods
+  1. optional `static` methods other than `getDerivedStateFromProps`
   1. `constructor`
   1. `getDerivedStateFromProps`
   1. `componentDidMount`
@@ -831,6 +835,8 @@ We don’t recommend using indexes for keys if the order of items may change.
   1. `render`
 
   - Do not use `componentWillMount`, `componentWillReceiveProps` or `componentWillUpdate`, nor their `UNSAFE_` aliases. React 16.3 [marked them unsafe](https://legacy.reactjs.org/blog/2018/03/27/update-on-async-rendering.html) because they misbehave with async rendering. Use `componentDidMount`, `getDerivedStateFromProps` or `componentDidUpdate` instead. eslint: [`react/no-unsafe`](https://github.com/jsx-eslint/eslint-plugin-react/blob/master/docs/rules/no-unsafe.md), [`react/no-deprecated`](https://github.com/jsx-eslint/eslint-plugin-react/blob/master/docs/rules/no-deprecated.md)
+
+    Both rules report an unprefixed name such as `componentWillMount`. `react/no-deprecated` suggests renaming it to its `UNSAFE_` alias; ignore that suggestion, because `react/no-unsafe` reports the alias too.
 
   - How to define `propTypes` and `defaultProps` in a class component:
 

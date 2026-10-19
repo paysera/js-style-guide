@@ -103,7 +103,7 @@ export default React.memo(Avatar);
 `), ['noDefaultPropsWithFunction']);
     });
 
-    t.test('memo wrapped inline: asks for defaultProps despite a default parameter (until eslint-plugin-react#4046 is released)', (st) => {
+    t.test('memo wrapped inline, known plugin gap (eslint-plugin-react#4046): asks for defaultProps despite a default parameter', (st) => {
         st.plan(1);
         st.deepEqual(defaultPropsMessageIds(`
 const Avatar = React.memo(({ src, size = 48 }) => (
@@ -114,7 +114,22 @@ export default Avatar;
 `), ['shouldHaveDefault']);
     });
 
-    t.test('forwardRef wrapped inline: asks for defaultProps despite a default parameter (until eslint-plugin-react#4046 is released)', (st) => {
+    t.test('memo wrapped inline, known plugin gap (eslint-plugin-react#4046): accepts defaultProps', (st) => {
+        st.plan(1);
+        st.deepEqual(defaultPropsMessageIds(`
+const Avatar = React.memo(({ src, size = 48 }) => (
+    <img src={src} width={size} height={size} alt="" />
+));
+${avatarPropTypes}
+Avatar.defaultProps = {
+    size: 48,
+};
+
+export default Avatar;
+`), []);
+    });
+
+    t.test('forwardRef wrapped inline, known plugin gap (eslint-plugin-react#4046): asks for defaultProps despite a default parameter', (st) => {
         st.plan(1);
         st.deepEqual(defaultPropsMessageIds(`
 const Avatar = React.forwardRef(({ src, size = 48 }, ref) => (
@@ -123,6 +138,21 @@ const Avatar = React.forwardRef(({ src, size = 48 }, ref) => (
 ${avatarPropTypes}
 export default Avatar;
 `), ['shouldHaveDefault']);
+    });
+
+    t.test('forwardRef wrapped inline, known plugin gap (eslint-plugin-react#4046): accepts defaultProps', (st) => {
+        st.plan(1);
+        st.deepEqual(defaultPropsMessageIds(`
+const Avatar = React.forwardRef(({ src, size = 48 }, ref) => (
+    <img ref={ref} src={src} width={size} height={size} alt="" />
+));
+${avatarPropTypes}
+Avatar.defaultProps = {
+    size: 48,
+};
+
+export default Avatar;
+`), []);
     });
 
     t.test('class component: accepts defaultProps', (st) => {
