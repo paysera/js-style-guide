@@ -235,6 +235,23 @@ Avatar.defaultProps = {
         }), []);
     });
 
+    t.test('React < 18.3 override: rejects defaultProps on a required prop in a listed file', (st) => {
+        st.plan(1);
+        st.deepEqual(defaultPropsMessageIds(`
+export default function Avatar({ src, size }) {
+    return <img src={src} width={size} height={size} alt="" />;
+}
+${avatarPropTypes}
+Avatar.defaultProps = {
+    src: '/avatar.png',
+    size: 48,
+};
+`, {
+            projectConfig: unmigratedFilesOverride,
+            filename: 'src/components/Avatar.jsx',
+        }), ['noDefaultWithRequired']);
+    });
+
     t.test('React < 18.3 override: asks for defaultProps instead of default parameters in a listed file', (st) => {
         st.plan(1);
         st.deepEqual(defaultPropsMessageIds(`
