@@ -1,5 +1,5 @@
 import test from 'tape';
-import { errorMessages } from './errorMessageIds';
+import { errorMessages, reportedMessages } from './errorMessageIds';
 
 const hooksSetup = {
     plugins: ['react-hooks'],
@@ -42,8 +42,8 @@ Title.propTypes = {
 test('react-hooks', (t) => {
     t.test('not linted by @paysera alone', (st) => {
         st.plan(2);
-        st.deepEqual(errorMessages('react-hooks/rules-of-hooks', conditionalHook), []);
-        st.deepEqual(errorMessages('react-hooks/exhaustive-deps', titleWithEffectDependencies('')), []);
+        st.deepEqual(reportedMessages('react-hooks/rules-of-hooks', conditionalHook), []);
+        st.deepEqual(reportedMessages('react-hooks/exhaustive-deps', titleWithEffectDependencies('')), []);
     });
 
     t.test('README setup: rejects a Hook called conditionally', (st) => {

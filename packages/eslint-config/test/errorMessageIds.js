@@ -11,7 +11,7 @@ function createCli(projectConfig) {
 
 const payseraCli = createCli({});
 
-export function errorMessages(ruleId, component, { projectConfig, filename } = {}) {
+export function reportedMessages(ruleId, component, { projectConfig, filename } = {}) {
     const cli = projectConfig ? createCli(projectConfig) : payseraCli;
     const [result] = cli.executeOnText(`
 import React from 'react';
@@ -25,7 +25,11 @@ ${component}
         throw new Error(parsingError.message);
     }
 
-    return result.messages.filter(message => message.ruleId === ruleId && message.severity === 2);
+    return result.messages.filter(message => message.ruleId === ruleId);
+}
+
+export function errorMessages(ruleId, component, options) {
+    return reportedMessages(ruleId, component, options).filter(({ severity }) => severity === 2);
 }
 
 export default function errorMessageIds(ruleId, component, options) {
