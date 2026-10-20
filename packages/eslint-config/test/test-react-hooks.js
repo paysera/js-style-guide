@@ -24,7 +24,7 @@ Greeting.propTypes = {
 };
 `;
 
-function effectReading(dependencies) {
+function titleWithEffectDependencies(dependencies) {
     return `
 export default function Title({ text }) {
     React.useEffect(() => {
@@ -41,8 +41,9 @@ Title.propTypes = {
 
 test('react-hooks', (t) => {
     t.test('not linted by @paysera alone', (st) => {
-        st.plan(1);
+        st.plan(2);
         st.deepEqual(errorMessages('react-hooks/rules-of-hooks', conditionalHook), []);
+        st.deepEqual(errorMessages('react-hooks/exhaustive-deps', titleWithEffectDependencies('')), []);
     });
 
     t.test('README setup: rejects a Hook called conditionally', (st) => {
@@ -52,11 +53,11 @@ test('react-hooks', (t) => {
 
     t.test('README setup: rejects a missing effect dependency', (st) => {
         st.plan(1);
-        st.equal(errorMessages('react-hooks/exhaustive-deps', effectReading(''), { projectConfig: hooksSetup }).length, 1);
+        st.equal(errorMessages('react-hooks/exhaustive-deps', titleWithEffectDependencies(''), { projectConfig: hooksSetup }).length, 1);
     });
 
     t.test('README setup: accepts a complete dependency array', (st) => {
         st.plan(1);
-        st.deepEqual(errorMessages('react-hooks/exhaustive-deps', effectReading('text'), { projectConfig: hooksSetup }), []);
+        st.deepEqual(errorMessages('react-hooks/exhaustive-deps', titleWithEffectDependencies('text'), { projectConfig: hooksSetup }), []);
     });
 });
