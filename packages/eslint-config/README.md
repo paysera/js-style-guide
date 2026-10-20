@@ -87,7 +87,7 @@ List the unmigrated files in `files`. Migrate a listed file, and remove it from 
 
 ## Hooks rules
 
-This config does not lint the [Rules of Hooks](https://react.dev/reference/rules/rules-of-hooks) or the dependency arrays of `useEffect`, `useMemo` and `useCallback`. To check them, install `eslint-plugin-react-hooks@^4`, the newest major version that `eslint-config-airbnb` 18 accepts, and add the opt-in `@paysera/eslint-config/hooks` config. It extends `eslint-config-airbnb/hooks`, which reports both as errors:
+The default `@paysera` config does not lint the [Rules of Hooks](https://react.dev/reference/rules/rules-of-hooks) or the dependency arrays of `useEffect`, `useMemo` and `useCallback`. To check them, install `eslint-plugin-react-hooks@^4`, the newest major version that `eslint-config-airbnb` 18 accepts, and add the opt-in `@paysera/eslint-config/hooks` config. It extends `eslint-config-airbnb/hooks`, which reports both as errors:
 
 ```json
 {

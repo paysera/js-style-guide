@@ -70,7 +70,7 @@ This style guide is mostly based on the standards that are currently prevalent i
 
   - List every [reactive value](https://react.dev/learn/lifecycle-of-reactive-effects#all-variables-declared-in-the-component-body-are-reactive) that a `useEffect`, `useMemo` or `useCallback` callback reads in its dependency array: props, state, and variables and functions declared in the component body.
 
-  - `@paysera/eslint-config` does not lint the Rules of Hooks or dependency arrays. To check them, enable `eslint-plugin-react-hooks` in the project as described in [`@paysera/eslint-config`](../packages/eslint-config/README.md#hooks-rules).
+  - The default `@paysera` config does not lint the Rules of Hooks or dependency arrays. To check them, add the opt-in `@paysera/eslint-config/hooks` config, as described in [Hooks rules](../packages/eslint-config/README.md#hooks-rules).
 
   - Use a class only when React requires one, for example for an [error boundary](https://react.dev/reference/react/Component#catching-rendering-errors-with-an-error-boundary). Extend `React.Component`; never use `React.createClass`, which React 16 removed. eslint: [`react/prefer-es6-class`](https://github.com/jsx-eslint/eslint-plugin-react/blob/master/docs/rules/prefer-es6-class.md)
 
