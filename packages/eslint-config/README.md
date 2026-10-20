@@ -6,7 +6,7 @@ This package provides Paysera's .eslintrc as an extensible shared config.
 
 ## Usage
 
-We export three ESLint configurations for your usage.
+We export two ESLint configurations for your usage.
 
 ### @paysera/eslint-config
 
@@ -61,6 +61,10 @@ If you use yarn, run `npm info "@paysera/eslint-config@latest" peerDependencies`
 See [Paysera's Javascript styleguide](https://github.com/paysera/js-style-guide) and
 the [ESlint config docs](https://eslint.org/docs/user-guide/configuring#extending-configuration-files)
 for more information.
+
+### @paysera/eslint-config/hooks
+
+An opt-in addition to the default export that lints the Rules of Hooks and Hook dependency arrays. It requires `eslint-plugin-react-hooks`; see [Hooks rules](#hooks-rules).
 
 ## React versions
 

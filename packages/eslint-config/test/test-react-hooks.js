@@ -20,6 +20,17 @@ Greeting.propTypes = {
 };
 `;
 
+const topLevelHook = `
+export default function Greeting({ name = '' }) {
+    const [greeting] = React.useState(\`Hello, \${name}\`);
+
+    return <p>{greeting}</p>;
+}
+Greeting.propTypes = {
+    name: PropTypes.string,
+};
+`;
+
 function titleWithEffectDependencies(dependencies) {
     return `
 export default function Title({ text }) {
@@ -45,6 +56,11 @@ test('react-hooks', (t) => {
     t.test('README setup: rejects a Hook called conditionally', (st) => {
         st.plan(1);
         st.equal(errorMessages('react-hooks/rules-of-hooks', conditionalHook, { projectConfig: hooksSetup }).length, 1);
+    });
+
+    t.test('README setup: accepts a Hook called at the top level', (st) => {
+        st.plan(1);
+        st.deepEqual(errorMessages('react-hooks/rules-of-hooks', topLevelHook, { projectConfig: hooksSetup }), []);
     });
 
     t.test('README setup: rejects a missing effect dependency', (st) => {
