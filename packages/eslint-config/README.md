@@ -10,7 +10,7 @@ We export two ESLint configurations for your usage.
 
 ### @paysera/eslint-config
 
-Our default export contains all of our ESLint rules, including ECMAScript 6+ and React. It requires `eslint`, `eslint-plugin-import`, `eslint-plugin-react`, and `eslint-plugin-jsx-a11y`. If you don't need React, see [@paysera/eslint-config-base](https://www.npmjs.com/package/@paysera/eslint-config-base).
+Our default export contains all of our ESLint rules, including ECMAScript 6+ and React, except the opt-in Hooks rules in `@paysera/eslint-config/hooks`. It requires `eslint`, `eslint-plugin-import`, `eslint-plugin-react`, and `eslint-plugin-jsx-a11y`. If you don't need React, see [@paysera/eslint-config-base](https://www.npmjs.com/package/@paysera/eslint-config-base).
 
 If you use yarn, run `npm info "@paysera/eslint-config@latest" peerDependencies` to list the peer dependencies and versions, then run `yarn add --dev <dependency>@<version>` for each listed peer dependency. See below for npm instructions.
 
