@@ -1,8 +1,8 @@
 import test from 'tape';
 import errorMessageIds from './errorMessageIds';
 
-function defaultPropsMessageIds(component) {
-    return errorMessageIds('react/require-default-props', component);
+function defaultPropsMessageIds(component, options) {
+    return errorMessageIds('react/require-default-props', component, options);
 }
 
 const avatarPropTypes = `
@@ -11,6 +11,28 @@ Avatar.propTypes = {
     size: PropTypes.number,
 };
 `;
+
+const unmigratedAvatar = `
+export default function Avatar({ src, size }) {
+    return <img src={src} width={size} height={size} alt="" />;
+}
+${avatarPropTypes}
+Avatar.defaultProps = {
+    size: 48,
+};
+`;
+
+const unmigratedFilesOverride = {
+    overrides: [{
+        files: ['src/components/Avatar.jsx', 'src/components/UserCard.jsx'],
+        rules: {
+            'react/require-default-props': ['error', {
+                forbidDefaultForRequired: true,
+                functions: 'defaultProps',
+            }],
+        },
+    }],
+};
 
 test('react/require-default-props', (t) => {
     t.test('function component: accepts default parameters', (st) => {
@@ -33,6 +55,11 @@ Avatar.defaultProps = {
     size: 48,
 };
 `), ['noDefaultPropsWithFunction']);
+    });
+
+    t.test('function component: rejects defaultProps used instead of default parameters', (st) => {
+        st.plan(1);
+        st.deepEqual(defaultPropsMessageIds(unmigratedAvatar), ['noDefaultPropsWithFunction', 'shouldAssignObjectDefault']);
     });
 
     t.test('function component: rejects an optional prop without a default parameter', (st) => {
@@ -198,5 +225,33 @@ Avatar.defaultProps = {
     size: 48,
 };
 `), ['noDefaultWithRequired']);
+    });
+
+    t.test('React < 18.3 override: accepts defaultProps in a listed file', (st) => {
+        st.plan(1);
+        st.deepEqual(defaultPropsMessageIds(unmigratedAvatar, {
+            projectConfig: unmigratedFilesOverride,
+            filename: 'src/components/Avatar.jsx',
+        }), []);
+    });
+
+    t.test('React < 18.3 override: asks for defaultProps instead of default parameters in a listed file', (st) => {
+        st.plan(1);
+        st.deepEqual(defaultPropsMessageIds(`
+export default function Avatar({ src, size = 48 }) {
+    return <img src={src} width={size} height={size} alt="" />;
+}
+${avatarPropTypes}`, {
+            projectConfig: unmigratedFilesOverride,
+            filename: 'src/components/Avatar.jsx',
+        }), ['shouldHaveDefault']);
+    });
+
+    t.test('React < 18.3 override: keeps default parameters required in an unlisted file', (st) => {
+        st.plan(1);
+        st.deepEqual(defaultPropsMessageIds(unmigratedAvatar, {
+            projectConfig: unmigratedFilesOverride,
+            filename: 'src/components/Badge.jsx',
+        }), ['noDefaultPropsWithFunction', 'shouldAssignObjectDefault']);
     });
 });

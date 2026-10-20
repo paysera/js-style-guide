@@ -9,11 +9,11 @@ module.exports = {
     },
     rules: {
         // Validate props indentation in JSX
-        // https://github.com/yannickcr/eslint-plugin-react/blob/master/docs/rules/jsx-indent-props.md
+        // https://github.com/jsx-eslint/eslint-plugin-react/blob/master/docs/rules/jsx-indent-props.md
         'react/jsx-indent-props': ['error', 4],
 
         // Enforce JSX indentation
-        // https://github.com/yannickcr/eslint-plugin-react/blob/master/docs/rules/jsx-indent.md
+        // https://github.com/jsx-eslint/eslint-plugin-react/blob/master/docs/rules/jsx-indent.md
         'react/jsx-indent': ['error', 4],
 
         // Require a default for every optional prop: default parameters in function components, defaultProps in classes
@@ -27,7 +27,7 @@ module.exports = {
         // https://github.com/jsx-eslint/eslint-plugin-react/blob/master/docs/rules/no-unsafe.md
         'react/no-unsafe': ['error', { checkAliases: true }],
 
-        // Disallow object, array and function default props, which create a new value on every render
+        // Disallow default parameters that create a new object, array, function or element on every render
         // https://github.com/jsx-eslint/eslint-plugin-react/blob/master/docs/rules/no-object-type-as-default-prop.md
         'react/no-object-type-as-default-prop': 'error',
     },

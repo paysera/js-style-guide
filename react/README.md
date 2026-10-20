@@ -70,9 +70,9 @@ This style guide is mostly based on the standards that are currently prevalent i
 
   - List every [reactive value](https://react.dev/learn/lifecycle-of-reactive-effects#all-variables-declared-in-the-component-body-are-reactive) that a `useEffect`, `useMemo` or `useCallback` callback reads in its dependency array: props, state, and variables and functions declared in the component body.
 
-  - `@paysera/eslint-config` does not lint the Rules of Hooks or dependency arrays. To check them, add [`eslint-plugin-react-hooks`](https://react.dev/reference/eslint-plugin-react-hooks) to the project.
+  - `@paysera/eslint-config` does not lint the Rules of Hooks or dependency arrays. To check them, enable `eslint-plugin-react-hooks` in the project as described in [`@paysera/eslint-config`](../packages/eslint-config/README.md#hooks-rules).
 
-  - Use a class only when React requires one, for example for an [error boundary](https://react.dev/reference/react/Component#catching-rendering-errors-with-an-error-boundary). Extend `React.Component`; never use `React.createClass`, which React 16 removed. eslint: [`react/prefer-es6-class`](https://github.com/yannickcr/eslint-plugin-react/blob/master/docs/rules/prefer-es6-class.md)
+  - Use a class only when React requires one, for example for an [error boundary](https://react.dev/reference/react/Component#catching-rendering-errors-with-an-error-boundary). Extend `React.Component`; never use `React.createClass`, which React 16 removed. eslint: [`react/prefer-es6-class`](https://github.com/jsx-eslint/eslint-plugin-react/blob/master/docs/rules/prefer-es6-class.md)
 
     ```jsx
     // bad
@@ -86,7 +86,7 @@ This style guide is mostly based on the standards that are currently prevalent i
     }
     ```
 
-  - Declare function components as normal functions, not as arrow functions, and do not write a stateless component as a class. A render function passed inline to `forwardRef` or `React.memo` is a callback, so it stays an arrow function (see [Arrow Functions](../README.md#arrows--use-them)). eslint: [`react/prefer-stateless-function`](https://github.com/yannickcr/eslint-plugin-react/blob/master/docs/rules/prefer-stateless-function.md) reports the class form; the arrow-function form is not linted.
+  - Declare function components as normal functions, not as arrow functions, and do not write a stateless component as a class. A render function passed inline to `forwardRef` or `React.memo` is a callback, so it stays an arrow function (see [Arrow Functions](../README.md#arrows--use-them)). eslint: [`react/prefer-stateless-function`](https://github.com/jsx-eslint/eslint-plugin-react/blob/master/docs/rules/prefer-stateless-function.md) reports the class form; the arrow-function form is not linted.
 
     ```jsx
     // bad
@@ -607,7 +607,7 @@ We don’t recommend using indexes for keys if the order of items may change.
 
 ## Refs
 
-  - Do not use string refs; React 19 removed them. Use [`useRef`](https://react.dev/reference/react/useRef) in function components and [`createRef`](https://react.dev/reference/react/createRef) in class components. eslint: [`react/no-string-refs`](https://github.com/yannickcr/eslint-plugin-react/blob/master/docs/rules/no-string-refs.md)
+  - Do not use string refs; React 19 removed them. Use [`useRef`](https://react.dev/reference/react/useRef) in function components and [`createRef`](https://react.dev/reference/react/createRef) in class components. eslint: [`react/no-string-refs`](https://github.com/jsx-eslint/eslint-plugin-react/blob/master/docs/rules/no-string-refs.md)
 
     ```jsx
     // bad
@@ -733,7 +733,7 @@ We don’t recommend using indexes for keys if the order of items may change.
     }
     ```
 
-  - In class components, bind event handlers for the render method in the constructor. eslint: [`react/jsx-no-bind`](https://github.com/yannickcr/eslint-plugin-react/blob/master/docs/rules/jsx-no-bind.md)
+  - In class components, bind event handlers for the render method in the constructor. eslint: [`react/jsx-no-bind`](https://github.com/jsx-eslint/eslint-plugin-react/blob/master/docs/rules/jsx-no-bind.md)
 
     > Why? A bind call in the render path creates a brand new function on every single render. Do not use arrow functions in class fields, because it makes them [challenging to test and debug, and can negatively impact performance](https://medium.com/@charpeni/arrow-functions-in-class-properties-might-not-be-as-great-as-we-think-3b3551c440b1), and because conceptually, class fields are for data, not logic.
 
@@ -817,7 +817,7 @@ We don’t recommend using indexes for keys if the order of items may change.
 
 ## Ordering
 
-  - Ordering for `class extends React.Component`: eslint: [`react/sort-comp`](https://github.com/yannickcr/eslint-plugin-react/blob/master/docs/rules/sort-comp.md)
+  - Ordering for `class extends React.Component`: eslint: [`react/sort-comp`](https://github.com/jsx-eslint/eslint-plugin-react/blob/master/docs/rules/sort-comp.md)
 
   1. optional `static` methods other than `getDerivedStateFromProps`
   1. `constructor`

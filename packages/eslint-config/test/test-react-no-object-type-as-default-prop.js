@@ -24,6 +24,15 @@ export default function Clock({ icon = <span />, startedAt = new Date() }) {
 `), ['forbiddenTypeDefaultParam', 'forbiddenTypeDefaultParam']);
     });
 
+    t.test('rejects class, regular expression and Symbol defaults', (st) => {
+        st.plan(1);
+        st.deepEqual(objectDefaultMessageIds(`
+export default function SearchField({ Parser = class {}, pattern = /\\w+/, id = Symbol('search') }) {
+    return <input pattern={pattern.source} data-parser={Parser.name} data-id={String(id)} />;
+}
+`), ['forbiddenTypeDefaultParam', 'forbiddenTypeDefaultParam', 'forbiddenTypeDefaultParam']);
+    });
+
     t.test('memo wrapped inline: does not check default parameters', (st) => {
         st.plan(1);
         st.deepEqual(objectDefaultMessageIds(`

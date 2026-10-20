@@ -85,6 +85,21 @@ Projects on React < 18.3 that still declare `defaultProps` on function component
 
 List the unmigrated files in `files`. Migrate a listed file, and remove it from `files`, before adding components or optional props to it, because inside the override the rule asks for `defaultProps` again. Remove the override before upgrading to React 18.3 or later.
 
+## Hooks rules
+
+This config does not lint the [Rules of Hooks](https://react.dev/reference/rules/rules-of-hooks) or the dependency arrays of `useEffect`, `useMemo` and `useCallback`. To check them, install `eslint-plugin-react-hooks@^4`, the major version that `eslint-config-airbnb` 18 accepts, and enable its two rules:
+
+```json
+{
+    "extends": "@paysera",
+    "plugins": ["react-hooks"],
+    "rules": {
+        "react-hooks/rules-of-hooks": "error",
+        "react-hooks/exhaustive-deps": "error"
+    }
+}
+```
+
 ## Improving this config
 
 Consider adding test cases if you're making complicated rules changes, like anything involving regexes. Perhaps in a distant future, we could use literate programming to structure our README as test cases for our .eslintrc?
