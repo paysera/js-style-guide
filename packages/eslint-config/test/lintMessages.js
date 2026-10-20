@@ -2,10 +2,10 @@ import { CLIEngine } from 'eslint';
 
 const payseraConfig = require.resolve('..');
 
-function createCli(projectConfig) {
+function createCli({ extends: projectExtends = [], ...projectConfig }) {
     return new CLIEngine({
         useEslintrc: false,
-        baseConfig: { extends: payseraConfig, ...projectConfig },
+        baseConfig: { ...projectConfig, extends: [payseraConfig].concat(projectExtends) },
     });
 }
 

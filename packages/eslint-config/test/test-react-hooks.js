@@ -2,11 +2,7 @@ import test from 'tape';
 import { errorMessages, reportedMessages } from './lintMessages';
 
 const hooksSetup = {
-    plugins: ['react-hooks'],
-    rules: {
-        'react-hooks/rules-of-hooks': 'error',
-        'react-hooks/exhaustive-deps': 'error',
-    },
+    extends: require.resolve('../hooks'),
 };
 
 const conditionalHook = `
