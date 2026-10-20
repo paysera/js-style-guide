@@ -1,5 +1,5 @@
 import test from 'tape';
-import { errorMessages, reportedMessages } from './errorMessageIds';
+import { errorMessages, reportedMessages } from './lintMessages';
 
 const hooksSetup = {
     plugins: ['react-hooks'],

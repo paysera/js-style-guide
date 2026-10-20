@@ -32,6 +32,6 @@ export function errorMessages(ruleId, component, options) {
     return reportedMessages(ruleId, component, options).filter(({ severity }) => severity === 2);
 }
 
-export default function errorMessageIds(ruleId, component, options) {
+export function errorMessageIds(ruleId, component, options) {
     return errorMessages(ruleId, component, options).map(({ messageId }) => messageId);
 }
