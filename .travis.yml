@@ -9,6 +9,7 @@ install:
   - 'if [ -n "${PACKAGE-}" ]; then cd "packages/${PACKAGE}"; fi'
   - 'if [ "${TRAVIS_NODE_VERSION}" = "0.6" ] || [ "${TRAVIS_NODE_VERSION}" = "0.9" ]; then nvm install --latest-npm 0.8 && npm install && nvm use "${TRAVIS_NODE_VERSION}"; else npm install; fi;'
   - 'if [ -n "${ESLINT}" ]; then npm install --no-save "eslint@${ESLINT}"; fi'
+  - 'if [ -n "${REACT_PLUGIN}" ]; then npm install --no-save "eslint-plugin-react@${REACT_PLUGIN}"; fi'
 script:
   - 'if [ -n "${PREPUBLISH-}" ]; then npm run pretravis && npm run prepublish && npm run posttravis; elif [ -n "${LINT-}" ]; then npm run lint; else npm run travis; fi'
 sudo: false
@@ -20,6 +21,7 @@ env:
   - 'TEST=true ESLINT=6 PACKAGE=eslint-config'
   - 'TEST=true ESLINT=7 PACKAGE=eslint-config-base'
   - 'TEST=true ESLINT=7 PACKAGE=eslint-config'
+  - 'TEST=true ESLINT=7 REACT_PLUGIN=7.35.0 PACKAGE=eslint-config'
 matrix:
   fast_finish: true
   include:
